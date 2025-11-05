@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Credentials (NEVER commit these!)
+credentials/
+*.json
+!package.json
+earth-engine-key.json
+oauth2-credentials.json
+service-account-key.json
+drive-token.json
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build outputs
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+temp_downloads/
+
+# Task files (keep lst_tasks.json tracked for monitoring)
+# lst_tasks.json is committed to track export tasks

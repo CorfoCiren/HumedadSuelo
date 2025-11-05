@@ -1,0 +1,30 @@
+{
+  "name": "corfo-soil-moisture-processing",
+  "version": "1.0.0",
+  "description": "Automated soil moisture processing using Google Earth Engine",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.js",
+    "authorize": "node src/authorize.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "earth-engine",
+    "soil-moisture",
+    "automation",
+    "LST",
+    "VIIRS"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/earthengine": "^0.1.400",
+    "googleapis": "^144.0.0",
+    "dotenv": "^16.4.7",
+    "open": "^10.1.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
