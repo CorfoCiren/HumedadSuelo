@@ -1,5 +1,5 @@
 # Python dependencies for dashboard update
-# Pinned to compatible versions to avoid future google.api_core Python 3.10 deprecation issues
-earthengine-api==0.1.421
+# Use a broadly available earthengine-api release
+earthengine-api>=1.5.20,<2.0.0
 google-api-core>=2.11.0,<3.0.0
 google-auth>=2.20.0,<3.0.0
