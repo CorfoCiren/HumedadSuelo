@@ -6,6 +6,8 @@ package-lock.json
 credentials/
 *.json
 !package.json
+!lst_tasks.json
+!sm_tasks.json
 earth-engine-key.json
 oauth2-credentials.json
 service-account-key.json

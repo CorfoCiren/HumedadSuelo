@@ -1,0 +1,72 @@
+[
+  {
+    "taskId": "EXVCWUEVKQ2XE4SQZX6W4WOW",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes1",
+    "year": 2025,
+    "month": 1,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "MWJ2PA3INQDL6ZTG3WTDIIOB",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes2",
+    "year": 2025,
+    "month": 2,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "YAFIR6HYLVMSJ5LF7IUAW6WU",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes3",
+    "year": 2025,
+    "month": 3,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "EH5XYKIYPF2BHCK7K5TC3PAM",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes4",
+    "year": 2025,
+    "month": 4,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "FOEIXJRMA3OD4PE6A64JDLTU",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes5",
+    "year": 2025,
+    "month": 5,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "2EIUN6ZAU6OJJKRJAEZNCMCE",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes6",
+    "year": 2025,
+    "month": 6,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "XG5PAAGYKFAGJVGVHBD5FMWV",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes7",
+    "year": 2025,
+    "month": 7,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "PKR4DKQ5JCR3F6TWFBLLZGRS",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes8",
+    "year": 2025,
+    "month": 8,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "BIGA3SHJXJKIS2DYRSPFVAT2",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes9",
+    "year": 2025,
+    "month": 9,
+    "status": "SUBMITTED"
+  },
+  {
+    "taskId": "S3EGHTL4TYEVSDCGARYP3FUG",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes10",
+    "year": 2025,
+    "month": 10,
+    "status": "SUBMITTED"
+  }
+]
