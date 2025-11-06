@@ -21,14 +21,20 @@ def initialize_earth_engine():
             if not key_data:
                 raise ValueError('EE_PRIVATE_KEY is empty')
             
+            # Parse the JSON to get service account info
             service_account_info = json.loads(key_data)
+            
+            # Use ee.ServiceAccountCredentials (correct Python API method)
             credentials = ee.ServiceAccountCredentials(
-                service_account_info['client_email'],
-                key_data
+                email=service_account_info['client_email'],
+                key_data=key_data
             )
             ee.Initialize(credentials)
             print(f"✓ Initialized with service account: {service_account_info['client_email']}\n")
             return
+        except json.JSONDecodeError as e:
+            print(f"❌ Failed to parse EE_PRIVATE_KEY as JSON: {e}")
+            sys.exit(1)
         except Exception as e:
             print(f"❌ Service account initialization failed: {e}")
             sys.exit(1)
