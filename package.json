@@ -6,6 +6,10 @@
   "type": "module",
   "scripts": {
     "start": "node src/main.js",
+    "lst": "node src/main_LST_standalone.js",
+    "sm": "node src/main_HS_standalone.js",
+    "sm:schedule": "node src/sm-scheduler.js",
+    "sm:download": "node src/sm-download-and-upload.js",
     "authorize": "node src/authorize.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +26,8 @@
     "@google/earthengine": "^0.1.400",
     "googleapis": "^144.0.0",
     "dotenv": "^16.4.7",
-    "open": "^10.1.0"
+    "open": "^10.1.0",
+    "axios": "^1.6.0"
   },
   "engines": {
     "node": ">=16.0.0"
