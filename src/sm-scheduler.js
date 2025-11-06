@@ -18,21 +18,23 @@ const runSoilMoistureScheduler = async () => {
     // Initialize Earth Engine
     await initializeEE();
     
-    // Calculate which months to process (exclude current month and future months)
+    // Calculate which months to process (exclude current month and previous month)
+    // Only process up to (today - 2 months) to ensure complete data
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1; // 1-12
-    const lastCompleteMonth = currentMonth - 1; // Previous month
+    const lastCompleteMonth = currentMonth - 2; // Two months back
     
     console.log(`\nProcessing configuration:`);
     console.log(`  Current date: ${now.toISOString().split('T')[0]}`);
     console.log(`  Current year: ${currentYear}`);
     console.log(`  Current month: ${currentMonth}`);
-    console.log(`  Last complete month: ${lastCompleteMonth}`);
-    console.log(`  Months to process: 1 to ${lastCompleteMonth}\n`);
+    console.log(`  Last complete month to process: ${lastCompleteMonth}`);
+    console.log(`  Months to process: 1 to ${lastCompleteMonth}`);
+    console.log(`  Excluded: current month (${currentMonth}) and previous month (${currentMonth - 1})\n`);
     
     if (lastCompleteMonth < 1) {
-      console.log('⚠️  No complete months to process yet (we are in January).');
+      console.log('⚠️  No complete months to process yet (need at least 3rd month of the year).');
       console.log('   Exiting without starting any tasks.');
       return;
     }
