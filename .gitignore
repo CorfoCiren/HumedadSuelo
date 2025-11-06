@@ -37,6 +37,3 @@ build/
 tmp/
 temp/
 temp_downloads/
-
-# Task files (keep lst_tasks.json tracked for monitoring)
-# lst_tasks.json is committed to track export tasks

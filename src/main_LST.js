@@ -95,21 +95,18 @@ async function runLSTExport() {
   console.log('Missing past years:', missingPastYears.length ? missingPastYears.join(', ') : '(none)');
 
   let exportCount = 0;
-  const tasks = []; // Track all export tasks
 
   // Export ONLY missing past years
   for (let i = 0; i < missingPastYears.length; i++) {
     const year = missingPastYears[i];
     console.log('→ Exporting missing year:', year);
-    const taskInfo = await lstExport({ firstYear: year });
-    tasks.push(taskInfo);
+    lstExport({ firstYear: year });
     exportCount++;
   }
 
   // ALWAYS export current year
   console.log('→ Exporting current year:', currentYear, '(forced update)');
-  const taskInfo = await lstExport({ firstYear: currentYear });
-  tasks.push(taskInfo);
+  lstExport({ firstYear: currentYear });
   exportCount++;
 
   console.log('\n========================================');
@@ -118,20 +115,6 @@ async function runLSTExport() {
   console.log('Exports started:', exportCount);
   console.log('→ Check the Tasks tab in Earth Engine');
   console.log('========================================');
-
-  // Save tasks to JSON file
-  const fs = await import('fs');
-  const path = await import('path');
-  const { fileURLToPath } = await import('url');
-  
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const tasksFilePath = path.join(__dirname, '..', 'lst_tasks.json');
-  
-  fs.writeFileSync(tasksFilePath, JSON.stringify(tasks, null, 2));
-  console.log(`\n📄 Task list saved to: lst_tasks.json`);
-  console.log(`   Total tasks: ${tasks.length}`);
-  console.log(`\n➡️ You can monitor task progress and download results later.\n`);
 }
 
 // Export for use in other modules
