@@ -36,12 +36,21 @@ async function initializeDrive() {
       const content = fs.readFileSync(credentialsPath, 'utf8');
       const parsed = JSON.parse(content);
       if (parsed.removed) {
-        throw new Error('oauth2-credentials.json is a placeholder. Please set OAUTH2_CREDENTIALS_JSON environment variable.');
+        throw new Error(
+          'oauth2-credentials.json is a placeholder.\n\n' +
+          'Please copy the real OAuth2 credentials file from your other project:\n' +
+          '  cp ../CORFO_Bienes_Publicos_23_Valparaiso/oauth2-credentials.json credentials/\n\n' +
+          'Or set OAUTH2_CREDENTIALS_JSON environment variable.'
+        );
       }
       credentials = parsed.installed || parsed;
       console.log('Using OAuth2 credentials from file');
     } else {
-      throw new Error('Could not load OAuth2 credentials.');
+      throw new Error(
+        'oauth2-credentials.json not found.\n\n' +
+        'Please copy it from your other project:\n' +
+        '  cp ../CORFO_Bienes_Publicos_23_Valparaiso/oauth2-credentials.json credentials/'
+      );
     }
   }
 
