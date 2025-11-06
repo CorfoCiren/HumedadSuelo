@@ -2,6 +2,18 @@ import datetime
 import time
 import ee
 
+#!/usr/bin/env python3
+"""
+Soil Moisture Metrics Processing
+Note: Earth Engine must be initialized BEFORE calling functions in this module
+"""
+
+import ee
+import time
+import datetime
+
+# Note: Do NOT initialize EE here - it's done in update_dashboard.py
+
 def asegurar_geometrias_fixed(fc, subcuencas):
     """Versión corregida que maneja correctamente las geometrías de Earth Engine"""
 

@@ -8,16 +8,44 @@ Runs after SM exports complete
 import ee
 import sys
 import os
+import json
 
-# Import the processing modules (from existing files)
-try:
-    # Try importing from current directory first
-    from . import hs_update
-    from . import publish_asset
-except ImportError:
-    # Fallback: import from same directory
-    import hs_update
-    import publish_asset
+def initialize_earth_engine():
+    """Initialize Earth Engine with service account or user credentials"""
+    print("\nInitializing Earth Engine...")
+    
+    # GitHub Actions: use service account
+    if os.getenv('EE_PRIVATE_KEY'):
+        try:
+            key_data = os.getenv('EE_PRIVATE_KEY')
+            if not key_data:
+                raise ValueError('EE_PRIVATE_KEY is empty')
+            
+            service_account_info = json.loads(key_data)
+            credentials = ee.ServiceAccountCredentials(
+                service_account_info['client_email'],
+                key_data
+            )
+            ee.Initialize(credentials)
+            print(f"✓ Initialized with service account: {service_account_info['client_email']}\n")
+            return
+        except Exception as e:
+            print(f"❌ Service account initialization failed: {e}")
+            sys.exit(1)
+    
+    # Local development: use default credentials
+    try:
+        ee.Initialize(project='ee-corfobbppciren2023')
+        print("✓ Initialized with user credentials\n")
+    except Exception as e:
+        print("❌ Please authenticate first:")
+        print("  python -c \"import ee; ee.Authenticate()\"")
+        print(f"\nError: {e}")
+        sys.exit(1)
+
+# Import the processing modules AFTER defining initialize function
+import hs_update
+import publish_asset
 
 def main():
     """Main entry point for dashboard update"""
@@ -26,35 +54,8 @@ def main():
     print("SOIL MOISTURE DASHBOARD UPDATE")
     print("=" * 60)
     
-    # Initialize Earth Engine
-    print("\nInitializing Earth Engine...")
-    try:
-        # Use service account for automation
-        if os.getenv('EE_PRIVATE_KEY'):
-            import json
-            key_data = os.getenv('EE_PRIVATE_KEY')
-            if key_data:
-                service_account_info = json.loads(key_data)
-                credentials = ee.ServiceAccountCredentials(
-                    service_account_info['client_email'],
-                    key_data
-                )
-                ee.Initialize(credentials)
-            else:
-                raise ValueError('EE_PRIVATE_KEY is empty')
-        else:
-            # Local development - requires authentication
-            try:
-                ee.Initialize(project='ee-corfobbppciren2023')
-            except Exception:
-                print("Please authenticate Earth Engine first:")
-                print("  python -c \"import ee; ee.Authenticate()\"")
-                raise
-        
-        print("✓ Earth Engine initialized successfully\n")
-    except Exception as e:
-        print(f"❌ Failed to initialize Earth Engine: {e}")
-        sys.exit(1)
+    # Initialize Earth Engine FIRST
+    initialize_earth_engine()
     
     # Asset folders to process
     folder_hs = 'projects/ee-corfobbppciren2023/assets/HS'

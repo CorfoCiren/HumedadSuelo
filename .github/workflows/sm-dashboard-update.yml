@@ -30,8 +30,10 @@ jobs:
       - name: Run Dashboard Update
         env:
           EE_PRIVATE_KEY: ${{ secrets.EE_PRIVATE_KEY }}
+          PYTHONPATH: ${{ github.workspace }}/src
         run: |
-          python src/update_dashboard.py
+          cd src
+          python update_dashboard.py
 
       - name: Upload logs if failed
         if: failure()

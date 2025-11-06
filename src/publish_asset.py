@@ -1,12 +1,7 @@
 import ee
 
-# Autenticación e inicialización de Earth Engine
-try:
-    ee.Initialize(project='ee-corfobbppciren2023')
-except Exception as e:
-    print("EE may need authentication if running standalone")
-    ee.Authenticate()
-    ee.Initialize(project='ee-corfobbppciren2023')
+# Note: Earth Engine must be initialized BEFORE importing this module
+# The initialization is done in update_dashboard.py
 
 # Carpeta con los assets a hacer públicos
 #folder = 'users/corfobbppciren2024/SR'

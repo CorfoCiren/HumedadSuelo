@@ -104,6 +104,18 @@ print(asset.size().getInfo())  # Should work without auth
 
 ## Common Issues and Solutions
 
+## Common Issues and Solutions
+
+### Issue: "gcloud crashed (EOFError)" or "ee.Authenticate() required"
+
+**Cause**: Scripts trying to authenticate interactively on import
+
+**Solution**: ✅ **FIXED!** Scripts now expect EE to be pre-initialized by `update_dashboard.py`
+
+**What was changed**:
+- `update_dashboard.py` initializes EE BEFORE importing modules
+- `hs_update.py` and `publish_asset.py` no longer call `ee.Initialize()` on import
+
 ### Issue: "ModuleNotFoundError: No module named 'hs_update'"
 
 **Cause**: Python files not in `src/` directory
