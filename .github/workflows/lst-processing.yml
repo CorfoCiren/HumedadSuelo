@@ -3,8 +3,8 @@ name: LST Processing
 on:
   workflow_dispatch:
   schedule:
-    # Run at 2 AM UTC on January 5th every year
-    - cron: '0 2 5 1 *'
+    # Run at 2 AM UTC on the 1st day of every month
+    - cron: '0 2 1 * *'
 
 permissions:
   contents: write

@@ -3,8 +3,8 @@ name: SM Download - Drive Upload
 on:
   workflow_dispatch:
   schedule:
-    # Run at 2 AM UTC on January 11th every year (3 days after SM export)
-    - cron: '0 2 11 1 *'
+    # Run at 2 AM UTC on the 5th day of every month (2 days after SM Export)
+    - cron: '0 2 5 * *'
 
 jobs:
   download-and-upload:
