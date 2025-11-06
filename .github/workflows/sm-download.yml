@@ -1,0 +1,51 @@
+name: SM Download - Drive Upload
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run at 2 AM UTC on January 11th every year (3 days after SM export)
+    - cron: '0 2 11 1 *'
+
+jobs:
+  download-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify sm_tasks.json exists
+        run: |
+          if [ ! -f sm_tasks.json ]; then
+            echo "❌ Error: sm_tasks.json not found in repository"
+            echo ""
+            echo "Please run the SM export workflow first, which will commit sm_tasks.json"
+            exit 1
+          fi
+          echo "✓ Found sm_tasks.json with $(jq length sm_tasks.json) task(s):"
+          cat sm_tasks.json
+
+      - name: Run Download and Upload Script
+        env:
+          EE_PRIVATE_KEY: ${{ secrets.EE_PRIVATE_KEY }}
+          OAUTH2_CREDENTIALS_JSON: ${{ secrets.OAUTH2_CREDENTIALS_JSON }}
+          DRIVE_REFRESH_TOKEN: ${{ secrets.DRIVE_REFRESH_TOKEN }}
+        run: npm run sm:download
+
+      - name: Upload logs if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sm-download-logs
+          path: '*.log'
+          retention-days: 30

@@ -1,16 +1,16 @@
-name: LST Processing
+name: SM Export - Asset Export
 
 on:
   workflow_dispatch:
   schedule:
-    # Run at 2 AM UTC on January 5th every year
-    - cron: '0 2 5 1 *'
+    # Run at 2 AM UTC on January 8th every year (3 days after LST)
+    - cron: '0 2 8 1 *'
 
 permissions:
   contents: write
 
 jobs:
-  process-lst:
+  export-sm:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     
@@ -27,28 +27,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run LST processing
+      - name: Run SM scheduler
         env:
           EE_PRIVATE_KEY: ${{ secrets.EE_PRIVATE_KEY }}
-        run: npm run lst
+        run: npm run sm:schedule
 
-      - name: Commit lst_tasks.json to repository
+      - name: Commit sm_tasks.json to repository
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -f lst_tasks.json ]; then
-            git add lst_tasks.json
-            git diff --staged --quiet || git commit -m "Update LST tasks $(date +%Y-%m-%d) [skip ci]"
+          if [ -f sm_tasks.json ]; then
+            git add sm_tasks.json
+            git diff --staged --quiet || git commit -m "Update SM tasks $(date +%Y-%m-%d) [skip ci]"
             git push
           else
-            echo "No lst_tasks.json found, skipping commit"
+            echo "No sm_tasks.json found, skipping commit"
           fi
 
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lst-processing-logs
+          name: sm-export-logs
           path: |
             *.log
           retention-days: 30

@@ -158,13 +158,43 @@ async function processCompletedAssets(taskList) {
     fs.mkdirSync(tempDir, { recursive: true });
   }
 
+  // Determine current date and last complete month; filter tasks accordingly
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1; // 1-12
+
+  // Keep only tasks up to (today - 2 months): exclude current month and previous month
+  const lastCompleteMonth = currentMonth - 2; // e.g., if now is Mar (3) -> process up to Jan (1)
+
+  console.log('\nProcessing configuration:');
+  console.log(`  Current date: ${now.toISOString().split('T')[0]}`);
+  console.log(`  Current year: ${currentYear}`);
+  console.log(`  Current month: ${currentMonth}`);
+  console.log(`  Last complete month to process: ${lastCompleteMonth}`);
+
+  if (lastCompleteMonth < 1) {
+    console.log('\n⚠️  No complete months to process yet (need at least 3rd month of the year).');
+    console.log('   Exiting without downloading any assets.');
+    return;
+  }
+
+  // Keep tasks from previous years and tasks in current year up to lastCompleteMonth
+  const filteredTasks = taskList.filter(function(task) {
+    // If task has invalid year/month, include it by default
+    if (typeof task.year !== 'number' || typeof task.month !== 'number') return true;
+    if (task.year < currentYear) return true; // past years -> process
+    if (task.year > currentYear) return false; // future years -> skip
+    // task.year === currentYear -> only process months <= lastCompleteMonth
+    return task.month <= lastCompleteMonth;
+  });
+
   console.log('\nStarting download and upload process...');
-  console.log(`Found ${taskList.length} tasks to process.`);
+  console.log(`Found ${taskList.length} tasks in task file; ${filteredTasks.length} will be processed (skipped ${taskList.length - filteredTasks.length}).`);
 
   let successCount = 0;
   let errorCount = 0;
 
-  for (const task of taskList) {
+  for (const task of filteredTasks) {
     try {
       console.log(`\n------------------------------------------------------------`);
       console.log(`Processing Year: ${task.year}, Month: ${task.month}`);

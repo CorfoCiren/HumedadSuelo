@@ -4,6 +4,7 @@
  */
 
 import ee from '@google/earthengine';
+import fs from 'fs';
 
 /**
  * Lists existing years in the assets folder (single API call)
@@ -95,26 +96,36 @@ async function runLSTExport() {
   console.log('Missing past years:', missingPastYears.length ? missingPastYears.join(', ') : '(none)');
 
   let exportCount = 0;
+  const tasks = [];
 
   // Export ONLY missing past years
   for (let i = 0; i < missingPastYears.length; i++) {
     const year = missingPastYears[i];
     console.log('→ Exporting missing year:', year);
-    lstExport({ firstYear: year });
+    const taskInfo = await lstExport({ firstYear: year });
+    tasks.push(taskInfo);
     exportCount++;
   }
 
   // ALWAYS export current year
   console.log('→ Exporting current year:', currentYear, '(forced update)');
-  lstExport({ firstYear: currentYear });
+  const currentYearTask = await lstExport({ firstYear: currentYear });
+  tasks.push(currentYearTask);
   exportCount++;
+
+  // Save tasks to JSON file for tracking
+  const tasksFilePath = 'lst_tasks.json';
+  fs.writeFileSync(tasksFilePath, JSON.stringify(tasks, null, 2));
 
   console.log('\n========================================');
   console.log('PROCESS COMPLETED');
   console.log('========================================');
   console.log('Exports started:', exportCount);
+  console.log(`📄 Task list saved to: ${tasksFilePath}`);
   console.log('→ Check the Tasks tab in Earth Engine');
   console.log('========================================');
+  
+  return tasks;
 }
 
 // Export for use in other modules
