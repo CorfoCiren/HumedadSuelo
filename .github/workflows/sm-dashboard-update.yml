@@ -1,0 +1,42 @@
+name: SM Dashboard Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run at 2 AM UTC on January 14th every year (after download completes)
+    - cron: '0 2 14 1 *'
+
+permissions:
+  contents: read
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Dashboard Update
+        env:
+          EE_PRIVATE_KEY: ${{ secrets.EE_PRIVATE_KEY }}
+        run: |
+          python src/update_dashboard.py
+
+      - name: Upload logs if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-update-logs
+          path: '*.log'
+          retention-days: 30

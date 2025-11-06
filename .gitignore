@@ -21,6 +21,15 @@ drive-token.json
 *.log
 npm-debug.log*
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.pytest_cache/
+.mypy_cache/
+
 # OS files
 .DS_Store
 Thumbs.db

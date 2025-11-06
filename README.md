@@ -2,12 +2,13 @@
 
 ## 🚀 GitHub Actions Automation
 
-This project is fully automated with GitHub Actions! Four workflows run automatically:
+This project is fully automated with GitHub Actions! Five workflows run automatically:
 
 1. **LST Processing** (Jan 5) - Exports LST data
 2. **SM Export** (Jan 8) - Exports Soil Moisture to assets
 3. **SM Download** (Jan 11) - Downloads and uploads to Google Drive
-4. **Token Keep-Alive** (Every 3 months) - Refreshes OAuth2 token
+4. **Dashboard Update** (Jan 14) - Processes metrics and makes assets public
+5. **Token Keep-Alive** (Every 3 months) - Refreshes OAuth2 token
 
 ### Quick Start
 
@@ -22,7 +23,10 @@ Settings → Secrets → Add:
 Actions → Select workflow → Run workflow
 ```
 
-See detailed guide: **[GitHub Actions Setup](GITHUB_ACTIONS_SETUP.md)**
+See detailed guides:
+- **[GitHub Actions Setup](GITHUB_ACTIONS_SETUP.md)** - Complete setup guide
+- **[Dashboard Update Setup](DASHBOARD_UPDATE_SETUP.md)** - Python integration (NEW!)
+- **[Workflow Monitoring](WORKFLOW_MONITORING.md)** - How to monitor workflows
 
 ---
 

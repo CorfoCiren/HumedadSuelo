@@ -35,7 +35,18 @@
 
 **What it does:** Downloads SM assets and uploads to Google Drive
 
-### 4. Token Keep-Alive
+### 4. Dashboard Update
+
+```bash
+# On GitHub:
+1. Go to Actions tab
+2. Select "SM Dashboard Update"
+3. Click "Run workflow" → "Run workflow"
+```
+
+**What it does:** Processes metrics and makes assets public
+
+### 5. Token Keep-Alive
 
 ```bash
 # On GitHub:
@@ -53,6 +64,7 @@
 | LST Processing | Jan 5, 2 AM UTC | Annual LST export |
 | SM Export | Jan 8, 2 AM UTC | Annual SM export |
 | SM Download | Jan 11, 2 AM UTC | Download & upload to Drive |
+| Dashboard Update | Jan 14, 2 AM UTC | Process metrics & publish |
 | Token Keep-Alive | Every 3 months | Keep OAuth2 token active |
 
 ## 🔑 Required Secrets
@@ -88,7 +100,12 @@ Before first run:
 - **File:** `sm_tasks.json` (committed to repo)
 
 ### SM Download
+- **Assets:** `projects/ee-corfobbppciren2023/assets/HS/SM{YEAR}Valparaiso_GCOM_mes{M}`
 - **Drive:** `Humedad de suelo/SM{YEAR}Valparaiso_VIIRS_mes{M}.tif`
+
+### Dashboard Update
+- **Assets:** `projects/ee-corfobbppciren2023/assets/MetricsHSTransposed/{DATE}`
+- **Status:** All assets in HS and MetricsHSTransposed folders made public
 
 ## 🔍 Monitoring
 

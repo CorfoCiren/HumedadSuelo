@@ -1,0 +1,2 @@
+# Python dependencies for dashboard update
+earthengine-api>=0.1.400
