@@ -23,6 +23,9 @@ async function initializeDrive() {
   if (!refreshToken) {
     throw new Error('DRIVE_REFRESH_TOKEN is not set in the .env file. Please run: npm run authorize');
   }
+  
+  console.log('Refresh token (first 10 chars):', refreshToken.substring(0, 10) + '...');
+  console.log('Refresh token length:', refreshToken.length);
 
   let credentials;
   
@@ -30,6 +33,7 @@ async function initializeDrive() {
     const parsed = JSON.parse(process.env.OAUTH2_CREDENTIALS_JSON);
     credentials = parsed.installed || parsed;
     console.log('Using OAuth2 credentials from environment variable');
+    console.log('Client ID (first 20 chars):', credentials.client_id ? credentials.client_id.substring(0, 20) + '...' : 'MISSING');
   } else {
     const credentialsPath = path.join(__dirname, '..', 'credentials', 'oauth2-credentials.json');
     if (fs.existsSync(credentialsPath)) {
@@ -38,9 +42,8 @@ async function initializeDrive() {
       if (parsed.removed) {
         throw new Error(
           'oauth2-credentials.json is a placeholder.\n\n' +
-          'Please copy the real OAuth2 credentials file from your other project:\n' +
-          '  cp ../CORFO_Bienes_Publicos_23_Valparaiso/oauth2-credentials.json credentials/\n\n' +
-          'Or set OAUTH2_CREDENTIALS_JSON environment variable.'
+          'Please copy the real file from your other project:\n' +
+          '  cp ../CORFO_Bienes_Publicos_23_Valparaiso/oauth2-credentials.json credentials/'
         );
       }
       credentials = parsed.installed || parsed;
@@ -55,11 +58,39 @@ async function initializeDrive() {
   }
 
   const { client_id, client_secret, redirect_uris } = credentials;
-  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+  const oAuth2Client = new google.auth.OAuth2(
+    client_id, 
+    client_secret, 
+    redirect_uris ? redirect_uris[0] : 'urn:ietf:wg:oauth:2.0:oob'
+  );
   
   oAuth2Client.setCredentials({
     refresh_token: refreshToken,
   });
+
+  try {
+    // Test the refresh token by requesting an access token
+    console.log('Validating OAuth2 refresh token...');
+    await oAuth2Client.getAccessToken();
+    console.log('✓ OAuth2 refresh token is valid');
+  } catch (error) {
+    if (error.message && error.message.includes('invalid_grant')) {
+      throw new Error(
+        '\n❌ OAuth2 refresh token is invalid or expired!\n\n' +
+        'This usually means:\n' +
+        '  1. The token was revoked at https://myaccount.google.com/permissions\n' +
+        '  2. The token hasn\'t been used in 6+ months and expired\n' +
+        '  3. The token was generated with different OAuth2 credentials\n\n' +
+        'To fix this:\n' +
+        '  1. Run locally: npm run authorize\n' +
+        '  2. Copy the new refresh token from .env file\n' +
+        '  3. Update GitHub Secret: DRIVE_REFRESH_TOKEN\n' +
+        '  4. Re-run this workflow\n\n' +
+        'Original error: ' + error.message
+      );
+    }
+    throw error;
+  }
 
   return google.drive({ version: 'v3', auth: oAuth2Client });
 }
