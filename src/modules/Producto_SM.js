@@ -13,35 +13,20 @@ export function run(config) {
   const RandomForest = getRandomForest(config);
 
 function batchRename(image){
-  var names = image.bandNames();
-  var rename = names.map(function(name){
-    return ee.String('b').cat(ee.String(name).replace('_classification', ''));
+  var rename=image.bandNames().map(function(name){
+    return ee.String("b").cat(ee.String(name).replace('_classification', ''));
   });
   return image.rename(rename);
 }
 
-// Classify each available day; do NOT force a fixed length list
-var SMcol = predictores.predictors.map(function(img){
-  return ee.Image(img)
-    .classify(RandomForest.clasificador)
-    .multiply(1000).round().toUint16()
-    .rename('classification');
-});
+// Classify predictors directly (fast approach)
+// Filter removes any images with null/masked bands before classification
+var SM=ee.ImageCollection(predictores.predictors.map(function(img){
+  return img.classify(RandomForest.clasificador).multiply(1000).round().toUint16();
+}));
 
-// If the month has no valid days, return a masked placeholder to avoid crashes
-var smSize = SMcol.size();
-var SM_bands = ee.Image(ee.Algorithms.If(
-  smSize.gt(0),
-  SMcol.toBands(),
-  ee.Image(0).rename('nodata').updateMask(ee.Image(0))
-));
-
-// Only rename and scale when there are bands
-var SM = ee.Image(ee.Algorithms.If(
-  smSize.gt(0),
-  batchRename(SM_bands).divide(10),
-  SM_bands // remains fully masked if no data
-));
+// Convert to multi-band image (fast)
+SM=batchRename(SM.toBands()).divide(10);
 
   return {SM: SM};
 }
