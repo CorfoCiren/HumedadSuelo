@@ -1,79 +1,16 @@
 [
   {
-    "taskId": "PDQIM2Z2BFIOMRFFPZ2P3P2C",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes1",
-    "year": 2025,
-    "month": 1,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "BRUXOLBQC6YGQ6CKEZON4MYN",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes2",
-    "year": 2025,
-    "month": 2,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "Y5HSLAP6VBHEFPZEG2DIPPST",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes3",
-    "year": 2025,
-    "month": 3,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "MQQHXWJPJAL7O76KYCD7X7CB",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes4",
-    "year": 2025,
-    "month": 4,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "BOTPHWZBCDSVPHP42ILDDMQ3",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes5",
-    "year": 2025,
-    "month": 5,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "XGSUTMKCAVJJ5RQG52X6AOGN",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes6",
-    "year": 2025,
-    "month": 6,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "54C2JM3Q6A5EAD725FI35FXR",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes7",
-    "year": 2025,
-    "month": 7,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "PQIKJYPV7ATQ75K724NZFTVH",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes8",
-    "year": 2025,
-    "month": 8,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "SCMQYX3WMWEIXWPHN2OPCQLH",
+    "taskId": "U3MBCBZ57KL5YTWAKWKHPOL3",
     "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes9",
     "year": 2025,
     "month": 9,
     "status": "SUBMITTED"
   },
   {
-    "taskId": "7TTRMK2IZFVK5QUTIYNGQOBO",
+    "taskId": "G7BHEGJ4Y7U35K7HKVEAFI3L",
     "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes10",
     "year": 2025,
     "month": 10,
-    "status": "SUBMITTED"
-  },
-  {
-    "taskId": "G4WYLTPBOPAHTDAWR3PCCHPW",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/HS/SM2025Valparaiso_GCOM_mes11",
-    "year": 2025,
-    "month": 11,
     "status": "SUBMITTED"
   }
 ]
