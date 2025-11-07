@@ -9,38 +9,25 @@ import fs from 'fs';
 /**
  * Executes Soil Moisture export for all months of a given year
  * This function is called AFTER Earth Engine is initialized
- * @param {Object} options - Configuration options
- * @param {number} options.maxMonth - Maximum month to process (defaults to current month - 1)
  */
-async function runSoilMoistureExport(options = {}) {
+async function runSoilMoistureExport() {
   // Dynamically import the module AFTER EE is initialized
   const { run: smExport } = await import('./modules/Export.js');
   
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1; // 1-12
-  
-  // Use provided maxMonth or default to previous month (exclude current month)
-  const maxMonth = options.maxMonth !== undefined ? options.maxMonth : (currentMonth - 1);
-  
-  // Validate maxMonth
-  if (maxMonth < 1) {
-    console.log('\n⚠️  No complete months to process yet (we are in January).');
-    console.log('   No exports will be started.');
-    return [];
-  }
 
   console.log('========================================');
   console.log('SOIL MOISTURE EXPORT');
   console.log('========================================');
   console.log('Year:', currentYear);
-  console.log('Processing months: 1 to', maxMonth);
-  console.log('Current month excluded:', currentMonth);
+  console.log('Processing months: 1 to', currentMonth);
   console.log('========================================\n');
 
   const tasks = [];
 
-  // Export each month up to maxMonth (excluding current month)
-  for (let mes = 1; mes <= maxMonth; mes++) {
+  // Export each month up to current month
+  for (let mes = 1; mes <= currentMonth; mes++) {
     console.log(`→ Exporting month ${mes} of ${currentYear}`);
     const taskInfo = await smExport({ firstYear: currentYear, mes: mes });
     tasks.push(taskInfo);
