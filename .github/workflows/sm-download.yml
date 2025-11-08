@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Run at 2 AM UTC on the 5th day of every month (2 days after SM Export)
-    - cron: '0 2 5 * *'
+    - cron: '0 2 6 * *'
 
 jobs:
   download-and-upload:
