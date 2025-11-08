@@ -185,7 +185,7 @@ def procesar_humedad_suelo():
         year = parts[0]
         month = parts[1]
 
-        asset_id = f'users/corfobbppciren2023/HS/SM{year}Valparaiso_GCOM_mes{month}'
+        asset_id = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes{month}'
         print(f'Asset ID generado: {asset_id}')
 
         return asset_id
@@ -280,7 +280,7 @@ def procesar_humedad_suelo():
     # 📌 PROCESAMIENTO PRINCIPAL
     # ============================================================
     try:
-        available_dates = get_available_dates_from_folder('users/corfobbppciren2023/HS')
+        available_dates = get_available_dates_from_folder('projects/ee-corfobbppciren2023/assets/HS')
         csv = get_latest_csv('projects/ee-corfobbppciren2023/assets/MetricsHSTransposed')
         processed_dates = get_processed_dates_from_csv(csv)
         missing_dates = available_dates.removeAll(
