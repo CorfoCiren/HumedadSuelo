@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Run at 2 AM UTC on the 3rd day of every month (2 days after LST)
-    - cron: '0 2 3 * *'
+    - cron: '0 2 5 * *'
 
 permissions:
   contents: write
