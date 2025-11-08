@@ -327,14 +327,33 @@ def procesar_humedad_suelo():
 
             asset_name = f'projects/ee-corfobbppciren2023/assets/MetricsHSTransposed/{fecha_asset}'
 
-            # Make sure to start the task with a meaningful description
-            export_task = ee.batch.Export.table.toAsset(
-                collection=datos_para_exportar,
-                description=f"HS_Update_{fecha_asset}",  # More descriptive name
-                assetId=asset_name
-            )
+            # If an asset with the same ID already exists, delete it first to allow overwrite.
+            try:
+                print(f"Checking if asset exists: {asset_name}")
+                try:
+                    info = ee.data.getAsset(asset_name)
+                    if info:
+                        print(f"Asset already exists. Deleting: {asset_name}")
+                        ee.data.deleteAsset(asset_name)
+                        print(f"Deleted existing asset: {asset_name}")
+                except Exception as e_info:
+                    # If asset not found, getAsset may raise — treat as non-fatal
+                    msg = str(e_info).lower()
+                    if 'not found' in msg or 'does not exist' in msg or '404' in msg:
+                        print("No existing asset to delete")
+                    else:
+                        print(f"Warning while checking asset existence: {e_info}")
+            except Exception as e_del:
+                print(f"Warning: failed to ensure asset deletion: {e_del}")
 
-            # In Colab, we need to start the task manually
+            # Make sure to start the task with a meaningful description
+            export_task = ee.batch.Export.table.toAsset({
+                'collection': datos_para_exportar,
+                'description': f"HS_Update_{fecha_asset}",  # More descriptive name
+                'assetId': asset_name
+            })
+
+            # In Colab/GitHub Actions, start the task
             export_task.start()
             print(f'Tarea de exportación SHP creada con éxito: {asset_name}')
             estado = "COMPLETED"
