@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Run at 2 AM UTC on the 7th day of every month (2 days after SM Download)
-    - cron: '0 2 7 * *'
+    - cron: '0 2 6 * *'
 
 permissions:
   contents: read
