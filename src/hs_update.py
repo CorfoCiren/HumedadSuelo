@@ -150,7 +150,21 @@ def procesar_humedad_suelo():
     def get_latest_csv(folder_path):
         asset_list = ee.data.listAssets(folder_path)['assets']
         date_list = [asset['name'].split('/')[-1] for asset in asset_list]
-        date_list.sort()
+        
+        # Sort by parsing year and month numerically, not lexicographically
+        def parse_asset_name(name):
+            try:
+                # Handle formats like '2025_10', '2025_10_1', '2025_5'
+                parts = name.split('_')
+                if len(parts) >= 2:
+                    year = int(parts[0])
+                    month = int(parts[1])
+                    return (year, month)
+                return (0, 0)  # fallback for unparseable names
+            except:
+                return (0, 0)
+        
+        date_list.sort(key=parse_asset_name)
         latest_date = date_list[-1]
         latest_asset_id = f"{folder_path}/{latest_date}"
         print(f'Último CSV encontrado: {latest_asset_id}')
@@ -185,71 +199,84 @@ def procesar_humedad_suelo():
         year = parts[0]
         month = parts[1]
 
-        asset_id = f'users/corfobbppciren2023/HS/SM{year}Valparaiso_GCOM_mes{month}'
-        print(f'Asset ID generado: {asset_id}')
+        # Try both naming variants: prefer the one without underscore (existing asset),
+        # fall back to the variant with underscore.
+        candidate_no_underscore = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes{month}'
+        candidate_with_underscore = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes_{month}'
 
-        return asset_id
+        try:
+            ee.Image(candidate_no_underscore).getInfo()
+            print(f'Asset ID generado (no underscore): {candidate_no_underscore}')
+            return candidate_no_underscore
+        except Exception:
+            try:
+                ee.Image(candidate_with_underscore).getInfo()
+                print(f'Asset ID generado (with underscore): {candidate_with_underscore}')
+                return candidate_with_underscore
+            except Exception:
+                raise RuntimeError(f"Image asset not found for date {date_str}. Tried: {candidate_no_underscore} and {candidate_with_underscore}")
 
     def calcular_promedios_por_subcuenca(asset_id, current_fc):
         current_fc = ee.FeatureCollection(current_fc)
-        partes = ee.String(asset_id).split('/')
-        nombre = partes.get(partes.length().subtract(1))
-        anio = ee.String(nombre).match('[0-9]{4}').get(0)
-        mes = ee.String(nombre).match('mes([0-9]+)').get(1)
 
-        # Check if image exists before loading
+        # Pure Python parsing (robust for mes10 or mes_10)
+        name = asset_id.split('/')[-1]  # e.g. SM2025Valparaiso_GCOM_mes10
         try:
-            image_norte = ee.Image(asset_id)
+            year = name.split('SM')[1].split('Valparaiso')[0]  # '2025'
+            month_part = name.split('mes')[-1]                 # '10' or '_10'
+            month = month_part.replace('_', '')                # remove optional underscore
+            if not month.isdigit():
+                raise ValueError(f"Month parse failed for {name}: got '{month}'")
+        except Exception as e:
+            print(f"Parse error for asset name '{name}': {e}")
+            return current_fc
 
-            # For Valparaiso, don't try to replace Norte with sur
-            # Just use the same image
-            image_sur = image_norte
+        date_formatted = f"{year}-{month}"  # e.g. 2025-10
 
-            date_formatted = ee.String(anio).cat('-').cat(ee.String(mes))
-            projection = image_norte.projection()
-            geometry = image_norte.geometry()  # Just use north geometry
+        # Load image
+        try:
+            image = ee.Image(asset_id)
+        except Exception as e:
+            print(f"Error loading image {asset_id}: {e}")
+            return current_fc
 
-            mosaic_image = ee.ImageCollection([image_norte]) \
-                .mosaic() \
-                .setDefaultProjection(projection) \
-                .clip(geometry)
+        projection = image.projection()
+        geometry = image.geometry()
 
-            media_global = mosaic_image.reduceRegion(
+        mosaic_image = ee.ImageCollection([image]) \
+            .mosaic() \
+            .setDefaultProjection(projection) \
+            .clip(geometry)
+
+        # Global mean (optional; kept for consistency)
+        media_global = mosaic_image.reduceRegion(
+            reducer=ee.Reducer.mean(),
+            geometry=mosaic_image.geometry(),
+            scale=30,
+            maxPixels=1e13
+        )
+
+        subcuencas_filtradas = subcuencas.filter(ee.Filter.inList('COD_SUBC', subcuenca_nombres))
+
+        def map_feature(feature):
+            cod = ee.String(feature.get('COD_SUBC'))
+            geom = ee.Algorithms.If(
+                cod.compareTo('Region').eq(0),
+                mosaic_image.geometry(),
+                subcuencas_filtradas.filter(ee.Filter.eq('COD_SUBC', cod)).first().geometry()
+            )
+
+            stats = mosaic_image.reduceRegion(
                 reducer=ee.Reducer.mean(),
-                geometry=mosaic_image.geometry(),
+                geometry=geom,
                 scale=30,
                 maxPixels=1e13
             )
 
-            valores_global = ee.Dictionary(media_global).values()
-            promedio_global = ee.Array(valores_global).reduce('mean', [0]).get([0])
+            mean_value = stats.values().reduce(ee.Reducer.mean())
+            return feature.set(date_formatted, mean_value)
 
-            subcuencas_filtradas = subcuencas.filter(ee.Filter.inList('COD_SUBC', subcuenca_nombres))
-
-            def map_feature(feature):
-                nombre_sub = ee.String(feature.get('COD_SUBC'))
-                geom = ee.Algorithms.If(
-                    nombre_sub.compareTo('Region').eq(0),
-                    mosaic_image.geometry(),
-                    subcuencas_filtradas.filter(ee.Filter.eq('COD_SUBC', nombre_sub)).first().geometry()
-                )
-
-                stats = mosaic_image.reduceRegion(
-                    reducer=ee.Reducer.mean(),
-                    geometry=geom,
-                    scale=30,
-                    maxPixels=1e13
-                )
-
-                mean_value = stats.values().reduce(ee.Reducer.mean())
-                return feature.set(date_formatted, mean_value)
-
-            resultado_final = current_fc.map(map_feature)
-            return resultado_final
-
-        except Exception as e:
-            print(f"Error processing image {asset_id}: {e}")
-            return current_fc  # Return unchanged if error
+        return current_fc.map(map_feature)
 
     def asegurar_geometrias(fc):
             """Fixed version that properly handles Earth Engine geometries"""
@@ -280,7 +307,7 @@ def procesar_humedad_suelo():
     # 📌 PROCESAMIENTO PRINCIPAL
     # ============================================================
     try:
-        available_dates = get_available_dates_from_folder('users/corfobbppciren2023/HS')
+        available_dates = get_available_dates_from_folder('projects/ee-corfobbppciren2023/assets/HS')
         csv = get_latest_csv('projects/ee-corfobbppciren2023/assets/MetricsHSTransposed')
         processed_dates = get_processed_dates_from_csv(csv)
         missing_dates = available_dates.removeAll(
@@ -313,16 +340,41 @@ def procesar_humedad_suelo():
 
             datos_para_exportar = asegurar_geometrias(final_result)
 
-            asset_name = f'projects/ee-corfobbppciren2023/assets/MetricsHSTransposed/{fecha_asset}'
+            # Find a unique asset name by appending _1, _2, etc. if base name exists
+            base_asset_name = f'projects/ee-corfobbppciren2023/assets/MetricsHSTransposed/{fecha_asset}'
+            asset_name = base_asset_name
+            suffix = 1
+            
+            while True:
+                try:
+                    info = ee.data.getAsset(asset_name)
+                    if info:
+                        # Asset exists, try next suffix
+                        print(f"Asset exists: {asset_name}, trying with suffix _{suffix}")
+                        asset_name = f"{base_asset_name}_{suffix}"
+                        suffix += 1
+                    else:
+                        # Asset doesn't exist (shouldn't reach here, but handle it)
+                        break
+                except Exception as e:
+                    # Asset not found (expected for new asset) - use this name
+                    msg = str(e).lower()
+                    if 'not found' in msg or 'does not exist' in msg or '404' in msg:
+                        print(f"Asset name is available: {asset_name}")
+                        break
+                    else:
+                        # Unexpected error - log and use base name
+                        print(f"Warning checking asset existence: {e}")
+                        break
 
             # Make sure to start the task with a meaningful description
             export_task = ee.batch.Export.table.toAsset(
                 collection=datos_para_exportar,
-                description=f"HS_Update_{fecha_asset}",  # More descriptive name
+                description=f"HS_Update_{fecha_asset}_{suffix}" if suffix > 1 else f"HS_Update_{fecha_asset}",
                 assetId=asset_name
             )
 
-            # In Colab, we need to start the task manually
+            # In Colab/GitHub Actions, start the task
             export_task.start()
             print(f'Tarea de exportación SHP creada con éxito: {asset_name}')
             estado = "COMPLETED"
