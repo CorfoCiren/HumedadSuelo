@@ -325,33 +325,39 @@ def procesar_humedad_suelo():
 
             datos_para_exportar = asegurar_geometrias(final_result)
 
-            asset_name = f'projects/ee-corfobbppciren2023/assets/MetricsHSTransposed/{fecha_asset}'
-
-            # If an asset with the same ID already exists, delete it first to allow overwrite.
-            try:
-                print(f"Checking if asset exists: {asset_name}")
+            # Find a unique asset name by appending _1, _2, etc. if base name exists
+            base_asset_name = f'projects/ee-corfobbppciren2023/assets/MetricsHSTransposed/{fecha_asset}'
+            asset_name = base_asset_name
+            suffix = 1
+            
+            while True:
                 try:
                     info = ee.data.getAsset(asset_name)
                     if info:
-                        print(f"Asset already exists. Deleting: {asset_name}")
-                        ee.data.deleteAsset(asset_name)
-                        print(f"Deleted existing asset: {asset_name}")
-                except Exception as e_info:
-                    # If asset not found, getAsset may raise — treat as non-fatal
-                    msg = str(e_info).lower()
-                    if 'not found' in msg or 'does not exist' in msg or '404' in msg:
-                        print("No existing asset to delete")
+                        # Asset exists, try next suffix
+                        print(f"Asset exists: {asset_name}, trying with suffix _{suffix}")
+                        asset_name = f"{base_asset_name}_{suffix}"
+                        suffix += 1
                     else:
-                        print(f"Warning while checking asset existence: {e_info}")
-            except Exception as e_del:
-                print(f"Warning: failed to ensure asset deletion: {e_del}")
+                        # Asset doesn't exist (shouldn't reach here, but handle it)
+                        break
+                except Exception as e:
+                    # Asset not found (expected for new asset) - use this name
+                    msg = str(e).lower()
+                    if 'not found' in msg or 'does not exist' in msg or '404' in msg:
+                        print(f"Asset name is available: {asset_name}")
+                        break
+                    else:
+                        # Unexpected error - log and use base name
+                        print(f"Warning checking asset existence: {e}")
+                        break
 
             # Make sure to start the task with a meaningful description
-            export_task = ee.batch.Export.table.toAsset({
-                'collection': datos_para_exportar,
-                'description': f"HS_Update_{fecha_asset}",  # More descriptive name
-                'assetId': asset_name
-            })
+            export_task = ee.batch.Export.table.toAsset(
+                collection=datos_para_exportar,
+                description=f"HS_Update_{fecha_asset}_{suffix}" if suffix > 1 else f"HS_Update_{fecha_asset}",
+                assetId=asset_name
+            )
 
             # In Colab/GitHub Actions, start the task
             export_task.start()
