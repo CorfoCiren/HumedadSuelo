@@ -194,29 +194,38 @@ async function processCompletedAssets(taskList) {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1; // 1-12
 
-  // Keep only tasks up to (today - 2 months): exclude current month and previous month
-  const lastCompleteMonth = currentMonth - 2; // e.g., if now is Mar (3) -> process up to Jan (1)
+  // Default behavior: exclude only the current month (so a run in November will include October).
+  // Set EXCLUDE_PREVIOUS_MONTH=true in the environment to retain the older conservative behaviour
+  // (exclude current month AND previous month).
+  const excludePrev = (process.env.EXCLUDE_PREVIOUS_MONTH === 'true');
+
+  // Compute lastCompleteMonth and its year, handling year wrap (January case)
+  let lastCompleteYear = currentYear;
+  let lastCompleteMonth = excludePrev ? (currentMonth - 2) : (currentMonth - 1);
+  if (lastCompleteMonth < 1) {
+    lastCompleteMonth += 12;
+    lastCompleteYear -= 1;
+  }
 
   console.log('\nProcessing configuration:');
   console.log(`  Current date: ${now.toISOString().split('T')[0]}`);
   console.log(`  Current year: ${currentYear}`);
   console.log(`  Current month: ${currentMonth}`);
-  console.log(`  Last complete month to process: ${lastCompleteMonth}`);
+  console.log(`  Exclude previous month too? ${excludePrev}`);
+  console.log(`  Last complete year-month to process: ${lastCompleteYear}-${String(lastCompleteMonth).padStart(2, '0')}`);
 
-  if (lastCompleteMonth < 1) {
-    console.log('\n⚠️  No complete months to process yet (need at least 3rd month of the year).');
-    console.log('   Exiting without downloading any assets.');
-    return;
+  // Helper to compare year-month tuples: returns true if (y,m) <= (lastCompleteYear,lastCompleteMonth)
+  function isBeforeOrEqual(y, m) {
+    if (y < lastCompleteYear) return true;
+    if (y > lastCompleteYear) return false;
+    return m <= lastCompleteMonth;
   }
 
   // Keep tasks from previous years and tasks in current year up to lastCompleteMonth
   const filteredTasks = taskList.filter(function(task) {
     // If task has invalid year/month, include it by default
     if (typeof task.year !== 'number' || typeof task.month !== 'number') return true;
-    if (task.year < currentYear) return true; // past years -> process
-    if (task.year > currentYear) return false; // future years -> skip
-    // task.year === currentYear -> only process months <= lastCompleteMonth
-    return task.month <= lastCompleteMonth;
+    return isBeforeOrEqual(task.year, task.month);
   });
 
   console.log('\nStarting download and upload process...');
