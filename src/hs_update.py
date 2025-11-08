@@ -218,67 +218,65 @@ def procesar_humedad_suelo():
 
     def calcular_promedios_por_subcuenca(asset_id, current_fc):
         current_fc = ee.FeatureCollection(current_fc)
-        partes = ee.String(asset_id).split('/')
-        nombre = partes.get(partes.length().subtract(1))
-        anio = ee.String(nombre).match('[0-9]{4}').get(0)
-        # Fixed regex: match 'mes' (with optional underscore) followed by digits at end of string
-        # This ensures we capture the full month number (e.g., '10' not just '1')
-        mes_match = ee.String(nombre).match('.*mes_?([0-9]+).*')
-        mes = mes_match.get(1)
 
-        # Check if image exists before loading
+        # Pure Python parsing (robust for mes10 or mes_10)
+        name = asset_id.split('/')[-1]  # e.g. SM2025Valparaiso_GCOM_mes10
         try:
-            image_norte = ee.Image(asset_id)
+            year = name.split('SM')[1].split('Valparaiso')[0]  # '2025'
+            month_part = name.split('mes')[-1]                 # '10' or '_10'
+            month = month_part.replace('_', '')                # remove optional underscore
+            if not month.isdigit():
+                raise ValueError(f"Month parse failed for {name}: got '{month}'")
+        except Exception as e:
+            print(f"Parse error for asset name '{name}': {e}")
+            return current_fc
 
-            # For Valparaiso, don't try to replace Norte with sur
-            # Just use the same image
-            image_sur = image_norte
+        date_formatted = f"{year}-{month}"  # e.g. 2025-10
 
-            date_formatted = ee.String(anio).cat('-').cat(ee.String(mes))
-            projection = image_norte.projection()
-            geometry = image_norte.geometry()  # Just use north geometry
+        # Load image
+        try:
+            image = ee.Image(asset_id)
+        except Exception as e:
+            print(f"Error loading image {asset_id}: {e}")
+            return current_fc
 
-            mosaic_image = ee.ImageCollection([image_norte]) \
-                .mosaic() \
-                .setDefaultProjection(projection) \
-                .clip(geometry)
+        projection = image.projection()
+        geometry = image.geometry()
 
-            media_global = mosaic_image.reduceRegion(
+        mosaic_image = ee.ImageCollection([image]) \
+            .mosaic() \
+            .setDefaultProjection(projection) \
+            .clip(geometry)
+
+        # Global mean (optional; kept for consistency)
+        media_global = mosaic_image.reduceRegion(
+            reducer=ee.Reducer.mean(),
+            geometry=mosaic_image.geometry(),
+            scale=30,
+            maxPixels=1e13
+        )
+
+        subcuencas_filtradas = subcuencas.filter(ee.Filter.inList('COD_SUBC', subcuenca_nombres))
+
+        def map_feature(feature):
+            cod = ee.String(feature.get('COD_SUBC'))
+            geom = ee.Algorithms.If(
+                cod.compareTo('Region').eq(0),
+                mosaic_image.geometry(),
+                subcuencas_filtradas.filter(ee.Filter.eq('COD_SUBC', cod)).first().geometry()
+            )
+
+            stats = mosaic_image.reduceRegion(
                 reducer=ee.Reducer.mean(),
-                geometry=mosaic_image.geometry(),
+                geometry=geom,
                 scale=30,
                 maxPixels=1e13
             )
 
-            valores_global = ee.Dictionary(media_global).values()
-            promedio_global = ee.Array(valores_global).reduce('mean', [0]).get([0])
+            mean_value = stats.values().reduce(ee.Reducer.mean())
+            return feature.set(date_formatted, mean_value)
 
-            subcuencas_filtradas = subcuencas.filter(ee.Filter.inList('COD_SUBC', subcuenca_nombres))
-
-            def map_feature(feature):
-                nombre_sub = ee.String(feature.get('COD_SUBC'))
-                geom = ee.Algorithms.If(
-                    nombre_sub.compareTo('Region').eq(0),
-                    mosaic_image.geometry(),
-                    subcuencas_filtradas.filter(ee.Filter.eq('COD_SUBC', nombre_sub)).first().geometry()
-                )
-
-                stats = mosaic_image.reduceRegion(
-                    reducer=ee.Reducer.mean(),
-                    geometry=geom,
-                    scale=30,
-                    maxPixels=1e13
-                )
-
-                mean_value = stats.values().reduce(ee.Reducer.mean())
-                return feature.set(date_formatted, mean_value)
-
-            resultado_final = current_fc.map(map_feature)
-            return resultado_final
-
-        except Exception as e:
-            print(f"Error processing image {asset_id}: {e}")
-            return current_fc  # Return unchanged if error
+        return current_fc.map(map_feature)
 
     def asegurar_geometrias(fc):
             """Fixed version that properly handles Earth Engine geometries"""
