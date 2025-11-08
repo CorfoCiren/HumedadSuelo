@@ -185,11 +185,22 @@ def procesar_humedad_suelo():
         year = parts[0]
         month = parts[1]
 
-        # Fixed: add underscore before month number to match actual asset naming
-        asset_id = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes_{month}'
-        print(f'Asset ID generado: {asset_id}')
+        # Try both naming variants: prefer the one without underscore (existing asset),
+        # fall back to the variant with underscore.
+        candidate_no_underscore = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes{month}'
+        candidate_with_underscore = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes_{month}'
 
-        return asset_id
+        try:
+            ee.Image(candidate_no_underscore).getInfo()
+            print(f'Asset ID generado (no underscore): {candidate_no_underscore}')
+            return candidate_no_underscore
+        except Exception:
+            try:
+                ee.Image(candidate_with_underscore).getInfo()
+                print(f'Asset ID generado (with underscore): {candidate_with_underscore}')
+                return candidate_with_underscore
+            except Exception:
+                raise RuntimeError(f"Image asset not found for date {date_str}. Tried: {candidate_no_underscore} and {candidate_with_underscore}")
 
     def calcular_promedios_por_subcuenca(asset_id, current_fc):
         current_fc = ee.FeatureCollection(current_fc)
