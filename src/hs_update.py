@@ -207,7 +207,10 @@ def procesar_humedad_suelo():
         partes = ee.String(asset_id).split('/')
         nombre = partes.get(partes.length().subtract(1))
         anio = ee.String(nombre).match('[0-9]{4}').get(0)
-        mes = ee.String(nombre).match('mes([0-9]+)').get(1)
+        # Fixed regex: match 'mes' (with optional underscore) followed by digits at end of string
+        # This ensures we capture the full month number (e.g., '10' not just '1')
+        mes_match = ee.String(nombre).match('.*mes_?([0-9]+).*')
+        mes = mes_match.get(1)
 
         # Check if image exists before loading
         try:
