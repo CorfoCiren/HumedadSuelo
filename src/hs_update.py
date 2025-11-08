@@ -150,7 +150,21 @@ def procesar_humedad_suelo():
     def get_latest_csv(folder_path):
         asset_list = ee.data.listAssets(folder_path)['assets']
         date_list = [asset['name'].split('/')[-1] for asset in asset_list]
-        date_list.sort()
+        
+        # Sort by parsing year and month numerically, not lexicographically
+        def parse_asset_name(name):
+            try:
+                # Handle formats like '2025_10', '2025_10_1', '2025_5'
+                parts = name.split('_')
+                if len(parts) >= 2:
+                    year = int(parts[0])
+                    month = int(parts[1])
+                    return (year, month)
+                return (0, 0)  # fallback for unparseable names
+            except:
+                return (0, 0)
+        
+        date_list.sort(key=parse_asset_name)
         latest_date = date_list[-1]
         latest_asset_id = f"{folder_path}/{latest_date}"
         print(f'Último CSV encontrado: {latest_asset_id}')
