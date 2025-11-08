@@ -185,7 +185,8 @@ def procesar_humedad_suelo():
         year = parts[0]
         month = parts[1]
 
-        asset_id = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes{month}'
+        # Fixed: add underscore before month number to match actual asset naming
+        asset_id = f'projects/ee-corfobbppciren2023/assets/HS/SM{year}Valparaiso_GCOM_mes_{month}'
         print(f'Asset ID generado: {asset_id}')
 
         return asset_id
