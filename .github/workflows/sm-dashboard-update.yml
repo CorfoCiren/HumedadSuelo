@@ -1,4 +1,4 @@
-name: SM Dashboard Update
+name: 4. SM Dashboard Update
 
 on:
   workflow_dispatch:
