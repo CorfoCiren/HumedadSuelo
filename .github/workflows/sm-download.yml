@@ -1,4 +1,4 @@
-name: SM Download - Drive Upload
+name: 3. SM Download - Drive Upload
 
 on:
   workflow_dispatch:
