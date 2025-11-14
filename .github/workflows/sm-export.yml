@@ -1,4 +1,4 @@
-name: SM Export - Asset Export
+name: 2. SM Export - Asset Export
 
 on:
   workflow_dispatch:
