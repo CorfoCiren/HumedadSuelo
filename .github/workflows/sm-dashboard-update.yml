@@ -1,4 +1,4 @@
-name: 4. SM Dashboard Update
+name: 4. Actualizar paneles web
 
 on:
   workflow_dispatch:
