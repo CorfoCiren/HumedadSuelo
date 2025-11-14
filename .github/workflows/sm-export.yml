@@ -1,4 +1,4 @@
-name: 2. SM Export - Asset Export
+name: 2. Calcular y exportar la humedad de suelo
 
 on:
   workflow_dispatch:
