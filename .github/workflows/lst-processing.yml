@@ -1,4 +1,4 @@
-name: LST Processing
+name: 1. LST Processing
 
 on:
   workflow_dispatch:
