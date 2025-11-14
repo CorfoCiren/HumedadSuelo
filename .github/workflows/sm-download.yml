@@ -1,4 +1,4 @@
-name: 3. SM Download - Drive Upload
+name: 3. Subir resultados de humedad de suelo
 
 on:
   workflow_dispatch:
