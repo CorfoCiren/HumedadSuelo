@@ -1,5 +1,4 @@
-name: 1. LST Processing
-
+name: 1. Procesamiento de LST
 on:
   workflow_dispatch:
   schedule:
