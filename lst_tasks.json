@@ -1,9 +1,9 @@
 [
   {
-    "taskId": "7HE4HFZNCBYUPHUNNRZKEECD",
-    "assetPath": "projects/ee-corfobbppciren2023/assets/Humedad_de_Suelo_Auxiliares/LST_VIIRS_Day_Valparaiso_2025_v5",
+    "taskId": "4MYSGVQNRYOMEXQ3LI2KLJWN",
+    "assetPath": "projects/ee-corfobbppciren2023/assets/Humedad_de_Suelo_Auxiliares/LST_VIIRS_Day_Valparaiso_2025_v7",
     "year": 2025,
-    "description": "LST_VIIRS_Day_Valparaiso_2025_v5",
+    "description": "LST_VIIRS_Day_Valparaiso_2025_v7",
     "status": "SUBMITTED"
   }
 ]
